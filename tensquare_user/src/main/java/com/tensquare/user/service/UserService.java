@@ -6,23 +6,29 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tensquare.user.controller.BaseExceptionHandler;
+import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import util.IdWorker;
 
 import com.tensquare.user.dao.UserDao;
 import com.tensquare.user.pojo.User;
+import util.JwtUtil;
 
 /**
  * 服务层
@@ -44,6 +50,13 @@ public class UserService {
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
+
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+	@Autowired
+	private HttpServletRequest request;
+
 	/**
 	 * 查询全部列表
 	 * @return
@@ -91,7 +104,12 @@ public class UserService {
 	 * @param user
 	 */
 	public void add(User user) {
+		User user1 = userDao.findByMobile(user.getMobile());
+		if (user1 != null){
+			throw new RuntimeException("此手机号已注册");
+		}
 		user.setId( idWorker.nextId()+"" );
+		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword())); //密码加密
 		user.setFollowcount(0);//关注数
 		user.setFanscount(0);//粉丝数
 		user.setOnline(0L);//在线时长
@@ -114,6 +132,10 @@ public class UserService {
 	 * @param id
 	 */
 	public void deleteById(String id) {
+		Claims token = (Claims) request.getAttribute("admin_claims");
+		if (token == null){
+			throw new RuntimeException("权限不足");
+		}
 		userDao.deleteById(id);
 	}
 
@@ -191,8 +213,16 @@ public class UserService {
 		map.put("template_code","SMS_172885309");
 		//签名
 		map.put("sign_name","MrLiu");
-		rabbitTemplate.convertAndSend("sms",map);
+		//rabbitTemplate.convertAndSend("sms",map);
 		//4.控制台打印   (方便测试)
 		System.err.println(checkCode);
     }
+
+	public User findByMobile(User user) {
+		User loginUser = userDao.findByMobile(user.getMobile());
+		if (loginUser!=null && bCryptPasswordEncoder.matches(user.getPassword(),loginUser.getPassword())){
+			return loginUser;
+		}
+		return null;
+	}
 }

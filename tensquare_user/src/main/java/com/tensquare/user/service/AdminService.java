@@ -11,18 +11,23 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
+import javax.servlet.http.HttpServletRequest;
 
+import io.jsonwebtoken.Claims;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import util.IdWorker;
 
 import com.tensquare.user.dao.AdminDao;
 import com.tensquare.user.pojo.Admin;
+import util.JwtUtil;
 
 /**
  * 服务层
@@ -39,6 +44,10 @@ public class AdminService {
 	@Autowired
 	private IdWorker idWorker;
 
+
+
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	/**
 	 * 查询全部列表
 	 * @return
@@ -87,6 +96,8 @@ public class AdminService {
 	 */
 	public void add(Admin admin) {
 		admin.setId( idWorker.nextId()+"" );
+		//密码加密
+		admin.setPassword(bCryptPasswordEncoder.encode(admin.getPassword()));
 		adminDao.save(admin);
 	}
 
@@ -103,6 +114,7 @@ public class AdminService {
 	 * @param id
 	 */
 	public void deleteById(String id) {
+
 		adminDao.deleteById(id);
 	}
 
@@ -142,4 +154,16 @@ public class AdminService {
 
 	}
 
+	/**
+	 * 登陆
+	 * @param admin
+	 * @return
+	 */
+	public Admin findByLoginName(Admin admin) {
+		Admin LoginName = adminDao.findByLoginname(admin.getLoginname());
+		if (LoginName != null && bCryptPasswordEncoder.matches(admin.getPassword(),LoginName.getPassword())){
+			return LoginName;
+		}
+		return null;
+	}
 }

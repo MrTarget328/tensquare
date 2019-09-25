@@ -11,7 +11,9 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
+import javax.servlet.http.HttpServletRequest;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,8 @@ public class ProblemService {
 	@Autowired
 	private IdWorker idWorker;
 
+	@Autowired
+	private HttpServletRequest request;
 	/**
 	 * 最新回复列表
 	 */
@@ -109,6 +113,11 @@ public class ProblemService {
 	 */
 	public void add(Problem problem) {
 		problem.setId( idWorker.nextId()+"" );
+
+		 Claims claims = (Claims) request.getAttribute("user_claims");
+		 if (claims == null){
+		 	throw  new RuntimeException("无权访问");
+		 }
 		problemDao.save(problem);
 	}
 

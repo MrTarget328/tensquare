@@ -1,4 +1,5 @@
 package com.tensquare.user.controller;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import com.tensquare.user.service.UserService;
 import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
+import util.JwtUtil;
+
 /**
  * 控制器层
  * @author Administrator
@@ -28,6 +31,9 @@ public class UserController {
 
 	@Autowired
 	private RedisTemplate redisTemplate;
+
+	@Autowired
+	private JwtUtil jwtUtil;
 	/**
 	 * 发送手机验证码
 	 */
@@ -50,7 +56,7 @@ public class UserController {
 		if (!code.equals(checkCodeRedis)){
 			return new Result(false,StatusCode.ERROR,"你输入的验证码不正确");
 		}
-		userService.add(user);
+			userService.add(user);
 		return new Result(true,StatusCode.OK,"注册成功");
 	}
 
@@ -126,6 +132,22 @@ public class UserController {
 	public Result delete(@PathVariable String id ){
 		userService.deleteById(id);
 		return new Result(true,StatusCode.OK,"删除成功");
+	}
+
+	/**
+	 * 用户登录
+	 */
+	@PostMapping("login")
+	public Result login(@RequestBody User user){
+		user = userService.findByMobile(user);
+		if (user == null){
+			return  new Result(false,StatusCode.LOGINERROR,"登陆失败");
+		}
+		String token = jwtUtil.createJWT(user.getId(), user.getNickname(), "user");
+		Map<String,Object> map = new HashMap<>();
+		map.put("roles","user");
+		map.put("token",token);
+		return  new Result(true,StatusCode.OK,"登陆成功",token);
 	}
 	
 }
