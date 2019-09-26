@@ -5,4 +5,10 @@ spring:
     name: tensquare-search #指定服务名
   data:
     elasticsearch:
-      cluster-nodes: 192.168.150.133:9300
+      cluster-nodes: 192.168.150.134:9300
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:6868/eureka/
+  instance:
+    prefer-ip-address: true

@@ -6,4 +6,10 @@ spring:
   data:
     mongodb:
       database: spitdb
-      host: 192.168.150.133
+      host: 192.168.150.134
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:6868/eureka/
+  instance:
+    prefer-ip-address: true

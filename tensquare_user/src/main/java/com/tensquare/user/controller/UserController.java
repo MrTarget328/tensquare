@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,6 +16,8 @@ import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import util.JwtUtil;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 控制器层
@@ -34,6 +37,7 @@ public class UserController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+
 	/**
 	 * 发送手机验证码
 	 */
@@ -149,5 +153,17 @@ public class UserController {
 		map.put("token",token);
 		return  new Result(true,StatusCode.OK,"登陆成功",token);
 	}
-	
+
+
+	/**
+	 * 添加关注数和粉丝数
+	 */
+	@PutMapping("/{friendId}/{userId}/{x}")
+	public void updateFanscountAndFollowcount(@PathVariable("friendId") String friendId,
+											  @PathVariable("userId") String userId,
+											  @PathVariable("x") int x){
+
+			userService.addNum(friendId,userId,x);
+
+	}
 }

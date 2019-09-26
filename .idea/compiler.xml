@@ -10,6 +10,8 @@
         <module name="tensquare_article" />
         <module name="tensquare_base" />
         <module name="tensquare_common" />
+        <module name="tensquare_eureka" />
+        <module name="tensquare_friend" />
         <module name="tensquare_gathering" />
         <module name="tensquare_qa" />
         <module name="tensquare_recruit" />
@@ -26,6 +28,8 @@
       <module name="tensquare_article" options="-parameters" />
       <module name="tensquare_base" options="-parameters" />
       <module name="tensquare_common" options="-parameters" />
+      <module name="tensquare_eureka" options="-parameters" />
+      <module name="tensquare_friend" options="-parameters" />
       <module name="tensquare_gathering" options="-parameters" />
       <module name="tensquare_qa" options="-parameters" />
       <module name="tensquare_recruit" options="-parameters" />

@@ -4,8 +4,14 @@ spring:
   application:
     name: tensquare-sms
   rabbitmq:
-    host: 192.168.150.133
+    host: 192.168.150.134
   aliyun:
     sms:
       accessKeyId: LTAIXou5T7PqDPOR
       accessKeySecret: Pik2jIb47MzNSqeK9r8fW5miIDsWQm
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:6868/eureka/
+  instance:
+    prefer-ip-address: true
