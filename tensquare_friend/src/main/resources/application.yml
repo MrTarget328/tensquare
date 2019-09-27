@@ -5,7 +5,7 @@ spring:
     name: tensquare-friend #指定服务名
   datasource:
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.150.134:3306/tensquare_friend?characterEncoding=utf-8
+    url: jdbc:mysql://192.168.150.135:3306/tensquare_friend?characterEncoding=utf-8
     username: root
     password: root
   jpa:
